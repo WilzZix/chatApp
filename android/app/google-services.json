@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "801907104203",
+    "project_id": "chatapp-2d911",
+    "storage_bucket": "chatapp-2d911.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:801907104203:android:99506c929ccfeeb1a53e4e",
+        "android_client_info": {
+          "package_name": "com.nodirbek.chatApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "801907104203-hopmlf6cb13akpn707t40ri67e490to1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwRfPGRp-bIRUTYreMlSpDxsI72MWK4_E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "801907104203-hopmlf6cb13akpn707t40ri67e490to1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
