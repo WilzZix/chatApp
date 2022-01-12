@@ -14,8 +14,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DBService.instance
-        .createUserInDB('0123', 'Nodir', 'nodirbarotov0707@gmail.com');
     return MaterialApp(
       navigatorKey: NavigationService.instance.navigatorKey,
       debugShowCheckedModeBanner: false,
