@@ -1,9 +1,11 @@
 import 'package:chat_app/providers/auth_provider.dart';
+import 'package:chat_app/services/navigation_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/snackbar_service.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
@@ -180,7 +182,9 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _registerButton() {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        NavigationService.instance.navigateToPage('register');
+      },
       child: SizedBox(
         height: _deviceHeight * 0.06,
         width: _deviceWidth,
