@@ -14,7 +14,7 @@ class AuthProvider extends ChangeNotifier {
   static AuthProvider instance = AuthProvider();
   AuthStatus? status;
   late FirebaseAuth _auth;
-  late UserCredential _result;
+  UserCredential? _result;
 
   AuthProvider() {
     _auth = FirebaseAuth.instance;
@@ -31,6 +31,25 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       status = AuthStatus.Error;
       SnackBarService.instance.showSnackBarError('Logging in failed!');
+    }
+    notifyListeners();
+  }
+
+  void registerUserWithEmailAndPassword(String _email, String _password,
+      Future<void> Function(String _uid) onSuccess) async {
+    status = AuthStatus.Authenticating;
+    notifyListeners();
+    try {
+      _result = await _auth.createUserWithEmailAndPassword(
+          email: _email, password: _password);
+      status = AuthStatus.Authenticated;
+      await onSuccess(_result!.user!.uid);
+      SnackBarService.instance
+          .showSnackBarSuccess('Successfully registered in!');
+    } catch (e) {
+      status = AuthStatus.Error;
+      _result = null;
+      SnackBarService.instance.showSnackBarError('Error registering user!');
     }
     notifyListeners();
   }

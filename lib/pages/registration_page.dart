@@ -1,6 +1,8 @@
+import 'package:chat_app/providers/auth_provider.dart';
+import 'package:chat_app/services/db_service.dart';
 import 'package:chat_app/services/navigation_service.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({Key? key}) : super(key: key);
@@ -13,7 +15,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
   late double _deviceHeight;
   late double _deviceWidth;
   GlobalKey<FormState>? _formKey;
-
+  AuthProvider _auth = AuthProvider();
+  String? _name;
+  String? _email;
+  String? _password;
 
   _RegistrationPageState() {
     _formKey = GlobalKey<FormState>();
@@ -27,36 +32,42 @@ class _RegistrationPageState extends State<RegistrationPage> {
       backgroundColor: Theme.of(context).backgroundColor,
       body: Container(
         alignment: Alignment.center,
-        child: signupPageUI(),
+        child: ChangeNotifierProvider<AuthProvider>.value(
+          value: AuthProvider.instance,
+          child: signupPageUI(),
+        ),
       ),
     );
   }
 
   Widget signupPageUI() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: _deviceWidth * 0.10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _headingWidget(),
-          _inputForm(),
-          _loginButton(),
-          _backToLoginPageButton(),
-        ],
-      ),
-      height: _deviceHeight * 0.75,
-    );
+    return Builder(builder: (BuildContext context) {
+      _auth = Provider.of(context);
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: _deviceWidth * 0.10),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _headingWidget(),
+            _inputForm(),
+            _loginButton(),
+            _backToLoginPageButton(),
+          ],
+        ),
+        height: _deviceHeight * 0.75,
+      );
+    });
   }
 
   Widget _headingWidget() {
-    return Container(
+    return SizedBox(
       height: _deviceHeight * 0.12,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: const [
           Text(
             'Lets get going',
             style: TextStyle(fontSize: 35, fontWeight: FontWeight.w700),
@@ -71,7 +82,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Widget _inputForm() {
-    return Container(
+    return SizedBox(
       height: _deviceHeight * 0.35,
       child: Form(
         key: _formKey,
@@ -102,7 +113,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(500),
-          image: DecorationImage(
+          image: const DecorationImage(
             fit: BoxFit.cover,
             image: NetworkImage(
                 'https://media.istockphoto.com/vectors/programming-design-concept-vector-id947663966?b=1&k=20&m=947663966&s=170x170&h=JoiK3tnziP5tqqABhc_iDFj9oW2QAZqLpMO2QKpB4G0='),
@@ -119,7 +130,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
       validator: (_input) {
         return _input!.isNotEmpty ? null : "Please enter a name";
       },
-      onSaved: (_input) {},
+      onSaved: (_input) {
+        _name = _input;
+      },
       cursorColor: Colors.white,
       decoration: const InputDecoration(
         hintText: 'Name',
@@ -139,7 +152,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ? null
             : "Please enter a valid email";
       },
-      onSaved: (_input) {},
+      onSaved: (_input) {
+        _email = _input;
+      },
       cursorColor: Colors.white,
       decoration: const InputDecoration(
         hintText: 'Email',
@@ -158,7 +173,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
       validator: (_input) {
         return _input!.isNotEmpty ? null : "Please enter a password";
       },
-      onSaved: (_input) {},
+      onSaved: (_input) {
+        _password = _input;
+      },
       cursorColor: Colors.white,
       decoration: const InputDecoration(
         hintText: 'Password',
@@ -170,18 +187,31 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Widget _loginButton() {
-    return SizedBox(
-      height: _deviceHeight * 0.06,
-      width: _deviceWidth,
-      child: MaterialButton(
-        color: Colors.blue,
-        child: const Text(
-          'Register',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
-        ),
-        onPressed: () {},
-      ),
-    );
+    return _auth.status != AuthStatus.Authenticating
+        ? SizedBox(
+            height: _deviceHeight * 0.06,
+            width: _deviceWidth,
+            child: MaterialButton(
+              color: Colors.blue,
+              child: const Text(
+                'Register',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+              ),
+              onPressed: () {
+                if (_formKey!.currentState!.validate()) {
+                  _auth.registerUserWithEmailAndPassword(_email!, _password!,
+                      (String _uid) async {
+                    await DBService.instance
+                        .createUserInDB(_uid, _name!, _email!);
+                  });
+                }
+              },
+            ),
+          )
+        : const Align(
+            alignment: Alignment.center,
+            child: CircularProgressIndicator(),
+          );
   }
 
   Widget _backToLoginPageButton() {
@@ -189,10 +219,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
       onTap: () {
         NavigationService.instance.navigateToPage('login');
       },
-      child: Container(
+      child: SizedBox(
         height: _deviceHeight * 0.06,
         width: _deviceWidth,
-        child: Icon(
+        child: const Icon(
           Icons.arrow_back,
           size: 40,
         ),

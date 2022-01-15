@@ -9,7 +9,7 @@ class DBService {
     _db = FirebaseFirestore.instance;
   }
 
-  String _userCollection = 'Users';
+  final String _userCollection = 'Users';
 
   Future<void> createUserInDB(String _uid, String _name, String _email) async {
     try {
@@ -17,8 +17,6 @@ class DBService {
           .collection(_userCollection)
           .doc(_uid)
           .set({'name': _name, 'email': _email});
-    } catch (e) {
-      print(e);
-    }
+    } catch (_) {}
   }
 }
